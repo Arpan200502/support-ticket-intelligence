@@ -16,9 +16,9 @@ function extractKeywords(text) {
 
 export function labelCluster(cluster) {
 
-  const combinedText = cluster.tickets
-    .map(t => t.text.toLowerCase())
-    .join(" ");
+  const combinedText = cluster.examples
+  .join(" ")
+  .toLowerCase();
   if (combinedText.includes("account") || combinedText.includes("password"))
     return "Account Access Issues";
 
@@ -102,7 +102,7 @@ export function labelClusters(clusters) {
   const labeled = clusters.map(cluster => ({
     issue: labelCluster(cluster),
     mentions: cluster.count,
-    examples: cluster.tickets.map(t => t.text).slice(0,3),
+    examples: cluster.examples.slice(0,3),
     tickets: cluster.tickets
   }));
 

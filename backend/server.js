@@ -9,46 +9,73 @@ import { aggregateClusters } from "./src/services/clusterAggregator.js";
 import { labelClusters } from "./src/services/clusterLabeler.js";
 
 const app = express();
-
+const PORT = 5000;
 app.use(cors());
 app.use(express.json());
+
+let insightsCache = null;
+
+async function buildInsights() {
+
+  console.log("1. Loading tickets");
+  const tickets = await loadTickets();
+
+  console.log("2. Preprocessing");
+  const processed = preprocessTickets(tickets);
+
+  console.log("3. Limiting dataset");
+  const subset = processed.slice(0, 500);
+
+  console.log("4. Clustering");
+  const clustered = await clusterTickets(subset);
+
+  console.log("5. Aggregating");
+  const aggregated = aggregateClusters(clustered);
+
+  console.log("6. Sorting");
+  aggregated.sort((a, b) => b.count - a.count);
+
+  console.log("7. Labeling clusters");
+  const labeled = labelClusters(aggregated);
+ 
+  return labeled;
+}
 
 app.get("/", (req, res) => {
     
   res.send("Support Ticket Intelligence API");
 });
-app.get("/insights", async (req, res) => {
+app.get("/insights", (req, res) => {
+
+  if (!insightsCache) {
+    return res.status(503).json({
+      message: "Insights still building. Try again in a few seconds."
+    });
+  }
+
+  res.json(insightsCache);
+
+});
+app.post("/rebuild-insights", async (req, res) => {
 
   try {
 
-    console.log("1. Loading tickets");
-    const tickets = await loadTickets();
+    console.log("Manual rebuild triggered");
 
-    console.log("2. Preprocessing");
-    const processed = preprocessTickets(tickets);
+    insightsCache = await buildInsights();
 
-    console.log("3. Limiting dataset");
-    const subset = processed.slice(0, 200);
+    res.json({
+      status: "ok",
+      message: "Insights rebuilt"
+    });
 
-    console.log("4. Clustering");
-    const clustered = await clusterTickets(subset);
+  } catch (err) {
 
-    console.log("5. Aggregating");
-    const aggregated = aggregateClusters(clustered);
-    console.log("6. Sortingg");
-    aggregated.sort((a, b) => b.count - a.count);
-    console.log("7. Labeling clusters");
-    const labeled = labelClusters(aggregated);
-    
+    console.error(err);
 
-    console.log("8. Sending response");
-
-    res.json(labeled);
-
-  } catch (error) {
-
-    console.error("Pipeline error:", error);
-    res.status(500).json({ error: "Cluster processing failed" });
+    res.status(500).json({
+      error: "Rebuild failed"
+    });
 
   }
 
@@ -61,16 +88,36 @@ app.get("/tickets", async (req, res) => {
   res.json(processed.slice(0, 20));
 });
 
-app.get("/test-embedding", async (req, res) => {
-  const vector = await getEmbedding(
-    "Unable to connect to the server"
-  );
 
-  res.json({ length: vector.length });
-});
 
-const PORT = 5000;
 
-app.listen(PORT, () => {
+
+app.listen(PORT, async () => {
+
   console.log(`Server running on port ${PORT}`);
+  console.log("Building insights cache...");
+
+  try {
+
+    insightsCache = await buildInsights();
+
+    console.log("Insights ready.");
+    console.log(`Issues detected: ${insightsCache.length}`);
+  } catch (error) {
+
+    console.error("Failed to build insights:", error);
+
+  }
+
 });
+setInterval(async () => {
+  console.log("Periodic refresh running...");
+
+  try {
+    insightsCache = await buildInsights();
+    console.log("Insights refreshed automatically");
+  } catch (err) {
+    console.error("Periodic refresh failed:", err);
+  }
+
+}, 15 * 60 * 1000); // every 15 minutes

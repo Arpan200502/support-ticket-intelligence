@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>Support Ticket Intelligence</title>
+
+<style>
+
+body{
+font-family: Arial, Helvetica, sans-serif;
+background:#0f172a;
+color:white;
+padding:40px;
+}
+
+h1{
+margin-bottom:25px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:#1e293b;
+border-radius:8px;
+overflow:hidden;
+}
+
+th,td{
+padding:14px;
+border-bottom:1px solid #334155;
+text-align:left;
+}
+
+th{
+background:#020617;
+}
+
+tr:hover{
+background:#334155;
+}
+
+.up{
+color:#22c55e;
+font-weight:bold;
+}
+
+.down{
+color:#ef4444;
+font-weight:bold;
+}
+
+.stable{
+color:#eab308;
+font-weight:bold;
+}
+
+.example{
+font-size:12px;
+color:#94a3b8;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Support Ticket Issue Intelligence</h1>
+<button onclick="refreshInsights()">Refresh Insights</button>
+
+<table id="issuesTable">
+
+<thead>
+<tr>
+<th>Issue</th>
+<th>Mentions</th>
+<th>Trend</th>
+<th>Example Ticket</th>
+</tr>
+</thead>
+
+<tbody>
+
+</tbody>
+
+</table>
+
+<script>
+
+async function loadInsights(){
+
+const response = await fetch("http://localhost:5000/insights");
+const data = await response.json();
+
+const tableBody = document.querySelector("#issuesTable tbody");
+
+tableBody.innerHTML="";
+
+data.forEach(issue=>{
+
+let trendClass="";
+let symbol="";
+
+if(issue.trend==="increasing"){
+trendClass="up";
+symbol="↑";
+}
+
+else if(issue.trend==="decreasing"){
+trendClass="down";
+symbol="↓";
+}
+
+else{
+trendClass="stable";
+symbol="→";
+}
+
+const row = `
+<tr>
+<td>${issue.issue}</td>
+<td>${issue.mentions}</td>
+<td class="${trendClass}">${symbol} ${issue.trend}</td>
+<td class="example">${issue.examples[0] || ""}</td>
+</tr>
+`;
+
+tableBody.innerHTML += row;
+
+});
+
+}
+
+loadInsights();
+setInterval(() => {
+  console.log("Auto refreshing dashboard...");
+  loadInsights();
+}, 17 * 60 * 1000);
+async function refreshInsights(){
+
+  const button = event.target;
+  button.innerText = "Refreshing...";
+  button.disabled = true;
+
+  await fetch("http://localhost:5000/rebuild-insights", {
+    method: "POST"
+  });
+
+  await loadInsights();
+
+  button.innerText = "Refresh Insights";
+  button.disabled = false;
+}
+
+</script>
+
+</body>
+
+</html>

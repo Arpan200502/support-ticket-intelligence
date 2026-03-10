@@ -17,13 +17,17 @@ export function loadTickets() {
       .pipe(csv())
       .on("data", (row) => {
 
-        tickets.push({
-          id: row["Ticket ID"],
-          subject: row["Ticket Subject"],
-          description: row["Ticket Description"],
-          created_at: row["Ticket Created Time"],
-          priority: row["Ticket Priority"]
-        });
+        const normalizedRow = Object.fromEntries(
+            Object.entries(row).map(([k,v]) => [k.trim(), v])
+              );
+
+          tickets.push({
+            id: normalizedRow["Ticket ID"],
+            subject: normalizedRow["Ticket Subject"],
+            description: normalizedRow["Ticket Description"],
+            created_at: normalizedRow["Date of Purchase"],
+            priority: normalizedRow["Ticket Priority"]
+          });
 
       })
       .on("end", () => resolve(tickets))

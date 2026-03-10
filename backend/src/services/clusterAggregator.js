@@ -10,19 +10,21 @@ export function aggregateClusters(clusteredTickets) {
       clusters[clusterId] = {
         clusterId,
         count: 0,
-        tickets: []
+        tickets: [],     
+        examples: []     
       };
     }
 
     clusters[clusterId].count += 1;
+
     clusters[clusterId].tickets.push(ticket);
 
-    if (clusters[clusterId].tickets.length > 5) {
-         clusters[clusterId].tickets.shift();
+    
+    if (clusters[clusterId].examples.length < 5) {
+      clusters[clusterId].examples.push(ticket.text);
     }
 
   }
 
   return Object.values(clusters);
-
 }
