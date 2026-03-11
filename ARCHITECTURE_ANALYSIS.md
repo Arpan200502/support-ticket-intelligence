@@ -543,4 +543,3 @@ API Endpoints
 - Real-time ticket ingestion
 - Emerging issue detection
 - LLM-based cluster summarization
-'@ | Set-Content -Path "c:\Users\Arpan\Desktop\kreo support-ticket-intelligence\ARCHITECTURE_ANALYSIS.md" -Encoding UTF8
