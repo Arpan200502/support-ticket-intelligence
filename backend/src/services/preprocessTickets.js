@@ -4,31 +4,27 @@ function preprocessTickets(tickets) {
     let text = `${ticket.subject || ""} ${ticket.description || ""}`;
 
     text = text
-      // remove placeholders like {product}
-      .replace(/\{.*?\}/g, "")
-      .replace(/\[.*?\]/g, "")
 
-      // remove HTML tags
+      // replace placeholders instead of removing them
+      .replace(/\{.*?\}/g, " product ")
+      .replace(/\[.*?\]/g, " item ")
+
+      // remove HTML
       .replace(/<[^>]*>/g, "")
-      // remove numbers that appear alone
-      .replace(/\b\d+\b/g, "")
 
-      // remove stray punctuation
-      .replace(/[—–•]+/g, " ")
       // remove URLs
       .replace(/https?:\/\/\S+/g, "")
 
-      // remove version numbers
-      .replace(/\b\d+(\.\d+)+\b/g, "")
+      // remove strange punctuation
+      .replace(/[—–•]+/g, " ")
 
       // normalize whitespace
       .replace(/\n/g, " ")
       .replace(/\s+/g, " ")
       .trim();
 
-    // limit length AFTER cleaning
     text = text.slice(0, 500);
-
+    text = text.toLowerCase()
     return {
       id: ticket.id,
       text,
@@ -38,5 +34,4 @@ function preprocessTickets(tickets) {
 
   });
 }
-
 export default preprocessTickets;
