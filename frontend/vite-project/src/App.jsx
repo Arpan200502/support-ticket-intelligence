@@ -12,7 +12,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:5000/insights');
+      const response = await fetch('https://support-ticket-intelligence-production.up.railway.app/insights');
       if (!response.ok) {
         throw new Error('Failed to fetch insights');
       }
@@ -28,7 +28,7 @@ function App() {
 
   const handleRefresh = async () => {
     try {
-      await fetch('http://localhost:5000/rebuild-insights', {
+      await fetch('https://support-ticket-intelligence-production.up.railway.app/rebuild-insights', {
         method: 'POST'
       });
       await fetchInsights();

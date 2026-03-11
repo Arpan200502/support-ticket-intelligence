@@ -283,3 +283,83 @@ body {
     border-bottom: 1px solid #e4e4e7;
   }
 }
+@media (max-width: 768px) {
+
+  .app {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .refresh-btn {
+    width: 100%;
+  }
+
+  .table-header {
+    display: none;
+  }
+
+  .issue-table {
+    border: none;
+    background: transparent;
+  }
+
+  .table-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+    border: 1px solid #e4e4e7;
+    border-radius: 8px;
+    padding: 16px;
+    background: #fff;
+  }
+
+  .issue-title {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .issue-stat,
+  .trend-text,
+  .growth-value {
+    text-align: left;
+  }
+
+  .issue-stat::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #6b7280;
+    margin-right: 6px;
+  }
+
+  .trend-text::before {
+    content: "Trend: ";
+    font-weight: 600;
+    color: #6b7280;
+  }
+
+  .growth-value::before {
+    content: "Growth: ";
+    font-weight: 600;
+    color: #6b7280;
+  }
+
+  .examples-preview {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .examples-content {
+    padding: 14px;
+  }
+
+  .example-text {
+    white-space: normal;
+  }
+}
